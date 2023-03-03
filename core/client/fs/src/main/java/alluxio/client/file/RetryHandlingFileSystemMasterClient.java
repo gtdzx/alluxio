@@ -62,6 +62,9 @@ import alluxio.grpc.SetAttributePOptions;
 import alluxio.grpc.SetAttributePRequest;
 import alluxio.grpc.StartSyncPRequest;
 import alluxio.grpc.StopSyncPRequest;
+import alluxio.grpc.SyncMetadataPOptions;
+import alluxio.grpc.SyncMetadataPRequest;
+import alluxio.grpc.SyncMetadataPResponse;
 import alluxio.grpc.UnmountPOptions;
 import alluxio.grpc.UnmountPRequest;
 import alluxio.grpc.UpdateMountPRequest;
@@ -459,6 +462,20 @@ public final class RetryHandlingFileSystemMasterClient extends AbstractMasterCli
             .setOptions(options.build())
             .build());
     return response.getProgressReport();
+  }
+
+  @Override
+  public void syncMetadata(AlluxioURI path, SyncMetadataPOptions options)
+      throws AlluxioStatusException {
+    retryRPC(() -> {
+      SyncMetadataPRequest request = SyncMetadataPRequest.newBuilder()
+          .setPath(path.getPath())
+          .setOptions(options)
+          .build();
+      SyncMetadataPResponse response = mClient.syncMetadata(request);
+      System.out.println("SyncMetadata result: " + response.getSuccess());
+      return null;
+    }, RPC_LOG, "SyncMetadata", "path=%s,options=%s", path, options);
   }
 
   /**

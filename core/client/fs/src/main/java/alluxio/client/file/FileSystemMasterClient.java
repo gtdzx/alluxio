@@ -33,6 +33,7 @@ import alluxio.grpc.ScheduleAsyncPersistencePOptions;
 import alluxio.grpc.SetAclAction;
 import alluxio.grpc.SetAclPOptions;
 import alluxio.grpc.SetAttributePOptions;
+import alluxio.grpc.SyncMetadataPOptions;
 import alluxio.grpc.UpdateUfsModePOptions;
 import alluxio.master.MasterClientContext;
 import alluxio.security.authorization.AclEntry;
@@ -370,4 +371,13 @@ public interface FileSystemMasterClient extends Client {
    */
   String getLoadProgress(AlluxioURI path,
       java.util.Optional<alluxio.grpc.LoadProgressReportFormat> format, boolean verbose);
+
+  /**
+   * Syncs metadata for a given alluxio path.
+   *
+   * @param path the path to sync metadata on
+   * @param options options to associate with this operation
+   */
+  void syncMetadata(AlluxioURI path, SyncMetadataPOptions options)
+      throws AlluxioStatusException;
 }

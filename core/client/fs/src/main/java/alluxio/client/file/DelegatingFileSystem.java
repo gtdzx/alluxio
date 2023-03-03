@@ -37,6 +37,7 @@ import alluxio.grpc.ScheduleAsyncPersistencePOptions;
 import alluxio.grpc.SetAclAction;
 import alluxio.grpc.SetAclPOptions;
 import alluxio.grpc.SetAttributePOptions;
+import alluxio.grpc.SyncMetadataPOptions;
 import alluxio.grpc.UnmountPOptions;
 import alluxio.security.authorization.AclEntry;
 import alluxio.wire.BlockLocationInfo;
@@ -258,6 +259,12 @@ public class DelegatingFileSystem implements FileSystem {
   public String getLoadProgress(AlluxioURI path,
       Optional<LoadProgressReportFormat> format, boolean verbose) {
     return mDelegatedFileSystem.getLoadProgress(path, format, verbose);
+  }
+
+  @Override
+  public void syncMetadata(AlluxioURI path, SyncMetadataPOptions options)
+      throws FileDoesNotExistException, IOException, AlluxioException {
+    mDelegatedFileSystem.syncMetadata(path, options);
   }
 
   @Override

@@ -31,6 +31,7 @@ import alluxio.grpc.ScheduleAsyncPersistencePOptions;
 import alluxio.grpc.SetAclAction;
 import alluxio.grpc.SetAclPOptions;
 import alluxio.grpc.SetAttributePOptions;
+import alluxio.grpc.SyncMetadataPOptions;
 import alluxio.grpc.UpdateUfsModePOptions;
 import alluxio.security.authorization.AclEntry;
 import alluxio.wire.MountPointInfo;
@@ -250,5 +251,10 @@ class MockFileSystemMasterClient implements FileSystemMasterClient {
   public String getLoadProgress(AlluxioURI path,
       java.util.Optional<alluxio.grpc.LoadProgressReportFormat> format, boolean verbose) {
     return null;
+  }
+
+  @Override
+  public void syncMetadata(AlluxioURI path, SyncMetadataPOptions options)
+      throws AlluxioStatusException {
   }
 }
