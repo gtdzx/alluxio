@@ -113,6 +113,8 @@ import alluxio.master.file.meta.UfsSyncPathCache;
 import alluxio.master.file.meta.options.MountInfo;
 import alluxio.master.file.metasync.MetadataSyncContext;
 import alluxio.master.file.metasync.MetadataSyncer;
+import alluxio.master.file.metasync.SyncOperation;
+import alluxio.master.file.metasync.SyncResult;
 import alluxio.master.journal.DelegatingJournaled;
 import alluxio.master.journal.FileSystemMergeJournalContext;
 import alluxio.master.journal.JournalContext;
@@ -518,7 +520,8 @@ public class DefaultFileSystemMaster extends CoreMaster
     mSyncMetadataExecutor.allowCoreThreadTimeOut(true);
     mActiveSyncMetadataExecutor.allowCoreThreadTimeOut(true);
     mLoadManager = new alluxio.master.file.loadmanager.LoadManager(this);
-    mMetadataSyncer = new MetadataSyncer(this, mInodeStore, mMountTable, mInodeTree);
+    mMetadataSyncer = new MetadataSyncer(
+        this, mInodeStore, mMountTable, mInodeTree, getSyncPathCache());
 
     // The mount table should come after the inode tree because restoring the mount table requires
     // that the inode tree is already restored.
@@ -4131,8 +4134,19 @@ public class DefaultFileSystemMaster extends CoreMaster
      */
 
     try (RpcContext rpcContext = createRpcContext()) {
-      mMetadataSyncer.sync(path, new MetadataSyncContext(
-          false, rpcContext, MetadataSyncer.NO_TTL_OPTION, null));
+      SyncResult result = mMetadataSyncer.sync(path, new MetadataSyncContext(
+          path, DescendantType.ALL, rpcContext, MetadataSyncer.NO_TTL_OPTION, null));
+      System.out.println("Sync duration: " + result.getSyncDuration() + " ms");
+      System.out.println("# of Inodes created: " + result.getSuccessOperationCount()
+          .getOrDefault(SyncOperation.CREATE, 0L));
+      System.out.println("# of Inodes recreated: " + result.getSuccessOperationCount()
+          .getOrDefault(SyncOperation.RECREATE, 0L));
+      System.out.println("# of Inodes updated: " + result.getSuccessOperationCount()
+          .getOrDefault(SyncOperation.UPDATE, 0L));
+      System.out.println("# of Inodes deleted: " + result.getSuccessOperationCount()
+          .getOrDefault(SyncOperation.DELETE, 0L));
+      System.out.println("# of Inodes were not changed: " + result.getSuccessOperationCount()
+          .getOrDefault(SyncOperation.NOOP, 0L));
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
